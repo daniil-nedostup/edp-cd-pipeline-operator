@@ -120,7 +120,15 @@ lint: golangci-lint ## Run go lint
 
 .PHONY: build
 build: clean ## build operator's binary
-	CGO_ENABLED=0 GOOS=${HOST_OS} GOARCH=${HOST_ARCH} go build -v -ldflags '${LDFLAGS}' -o ${DIST_DIR}/${BIN_NAME} -gcflags '${GCFLAGS}' ./cmd
+	CGO_ENABLED=0 GOOS=${HOST_OS} GOARCH=${HOST_ARCH} go build -v -ldflags '${LDFLAGS}' -o ${DIST_DIR}/${BIN_NAME}-${HOST_ARCH} -gcflags '${GCFLAGS}' ./cmd
+
+.PHONY: build-multiarch
+build-multiarch: clean ## build operator's binary for multiple architectures
+	GOOS=${HOST_OS} GOARCH=amd64 CGO_ENABLED=0 \
+	go build -v -ldflags '$(LDFLAGS)' -o $(DIST_DIR)/$(BIN_NAME)-amd64 -gcflags '$(GCFLAGS)' ./cmd
+
+	GOOS=${HOST_OS} GOARCH=arm64 CGO_ENABLED=0 \
+	go build -v -ldflags '$(LDFLAGS)' -o $(DIST_DIR)/$(BIN_NAME)-arm64 -gcflags '$(GCFLAGS)' ./cmd
 
 .PHONY: clean
 clean:  ## clean up
